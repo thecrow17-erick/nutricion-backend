@@ -1,0 +1,215 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+model User{
+  id                String @db.Uuid @default(uuid()) @id
+  name              String @db.Char(50)
+  email             String @db.Char(50)
+  phone             String @db.Char(8)
+  sexo              Sexo 
+  status            Boolean @default(true)
+
+  dietTracking      DietTracking[]
+
+  progress          UserProgress[]
+
+  chat              Chat[]
+
+  sales             Sale[]
+
+  adviceNutrition   NutritionAdvice[]
+
+  createdAt         DateTime @db.Timestamp() @default(now()) 
+  updatedAt         DateTime @db.Timestamp() @default(now()) @updatedAt
+}
+
+model NutritionAdvice{
+  id                Int @id @default(autoincrement())
+  description       String @db.Text  
+
+  userId            String @db.Uuid @default(uuid())
+  user              User  @relation(fields: [userId],references: [id])
+
+  createdAt         DateTime @db.Timestamp() @default(now()) 
+  updatedAt         DateTime @db.Timestamp() @default(now()) @updatedAt
+}
+
+model Chat{
+  id                Int @id @default(autoincrement())
+  botMessage        String @db.Text 
+  message           String @db.Text
+  status            Boolean @default(true)
+
+  userId            String @db.Uuid @default(uuid())
+  user              User  @relation(fields: [userId],references: [id])
+  
+  createdAt         DateTime @db.Timestamp() @default(now())
+}
+
+
+enum Sexo{
+  F
+  M
+}
+
+model Ofert{
+  id                Int @default(autoincrement()) @id
+  description       String @db.Text
+  status            Boolean @default(true)
+
+  saleId            Int @unique
+  sale              Sale @relation(fields: [saleId],references: [id])
+
+  createdAt         DateTime @db.Timestamp() @default(now()) 
+  updatedAt         DateTime @db.Timestamp() @default(now()) @updatedAt
+}
+
+//la compra de nuestros productos
+model Sale{
+  id                Int @default(autoincrement()) @id
+  total             Decimal @db.Decimal(10,2)
+  status            Boolean @default(true)
+
+
+  userId            String @db.Uuid
+  user              User @relation(fields: [userId],references: [id])
+
+  services          SaleService[]
+
+  products          SaleProduct[]
+
+  ofert             Ofert?
+
+  createdAt         DateTime @db.Timestamp() @default(now()) 
+  updatedAt         DateTime @db.Timestamp() @default(now()) @updatedAt
+} 
+
+model SaleService{
+  saleId            Int 
+  sale              Sale @relation(fields: [saleId],references: [id])
+
+  serviceId         Int
+  service           Service @relation(fields: [serviceId],references: [id])
+
+  cant              Int
+  importe           Decimal @db.Decimal(10,2)
+
+  @@id([saleId,serviceId])
+}
+//servicios de nuestra empresa
+model Service{
+  id                Int @default(autoincrement()) @id
+  name              String @db.Char(50)
+  description       String @db.Text
+  price             Decimal @db.Decimal(10,2)
+  status            Boolean @default(true)
+
+  products          ServiceProduct[]
+
+  sales             SaleService[]
+
+  createdAt         DateTime @db.Timestamp() @default(now()) 
+  updatedAt         DateTime @db.Timestamp() @default(now()) @updatedAt
+}
+
+model ServiceProduct{
+  serviceId         Int 
+  service           Service @relation(fields: [serviceId],references: [id])
+
+  productId         Int 
+  product           Product @relation(fields: [productId],references: [id])
+
+  @@id([productId,serviceId])
+}
+
+model SaleProduct{
+  saleId            Int 
+  sale              Sale @relation(fields: [saleId],references: [id])
+
+  productId         Int 
+  product           Product @relation(fields: [productId],references: [id])
+
+  cant              Int
+  importe           Decimal @db.Decimal(10,2)
+
+  @@id([saleId,productId])
+}
+
+model Product{
+  id                Int @default(autoincrement()) @id
+  name              String @db.Char(50)
+  description       String @db.Text
+  price             Decimal @db.Decimal(10,2)
+  status            Boolean @default(true)
+  stock             Int @db.Integer
+
+  services          ServiceProduct[]
+
+  sales             SaleProduct[]
+
+  categoryId        Int
+  category          Category @relation(fields: [categoryId],references: [id])
+
+  createdAt         DateTime @db.Timestamp() @default(now()) 
+  updatedAt         DateTime @db.Timestamp() @default(now()) @updatedAt
+}
+
+model Category{
+  id                Int @default(autoincrement()) @id
+  name              String @db.Char(50)
+  description       String @db.Text
+  status            Boolean @default(true)
+
+  products          Product[]
+
+  createdAt         DateTime @db.Timestamp() @default(now()) 
+  updatedAt         DateTime @db.Timestamp() @default(now()) @updatedAt
+}
+
+
+model DietTracking{
+  id                Int @default(autoincrement()) @id
+  calories          Decimal @db.Decimal(10,1)
+  protein           Decimal @db.Decimal(10,1)
+  carbohydrates     Decimal @db.Decimal(10,1)
+  fats              Decimal @db.Decimal(10,1)
+  time              DateTime @db.Date 
+
+  status            Boolean @default(true)
+
+  userId            String @db.Uuid
+  user              User @relation(fields: [userId],references: [id])  
+
+  createdAt         DateTime @db.Timestamp() @default(now())  
+  updatedAt         DateTime @db.Timestamp() @default(now()) @updatedAt
+}
+
+model UserProgress{
+  id                Int @default(autoincrement()) @id
+  wieght            Decimal @db.Decimal(10,2)
+  PGC               Decimal @db.Decimal(10,1)
+  MM                Decimal @db.Decimal(10,1)
+  time              DateTime @db.Date 
+
+  status            Boolean @default(true)
+
+  userId            String @db.Uuid
+  user              User @relation( fields: [userId],references: [id])
+
+  createdAt         DateTime @db.Timestamp() @default(now())  
+  updatedAt         DateTime @db.Timestamp() @default(now()) @updatedAt
+}
+
