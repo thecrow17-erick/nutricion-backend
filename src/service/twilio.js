@@ -13,7 +13,7 @@ export const sendMessage = async(message) =>{
         const response = await client.messages.create({
             body: message,
             from: 'whatsapp:+14155238886',
-            to: 'whatsapp:+59176679596'
+            to: 'whatsapp:+59176023033'
         });
         console.log('Mensaje enviado:', response.sid);
     } catch (error) {

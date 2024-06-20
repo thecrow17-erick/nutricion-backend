@@ -2,9 +2,9 @@
 
 export const usersDataSeed = [
   {
-    name: "Erick aricari",
-    email: "erickaricari@gmail.com",
-    phone: "76679596",
+    name: "Yeferson Adrian Huarachi",
+    email: "roberthuarachi27@gmail.com",
+    phone: "76023033",
     sexo: "M"
   },
   {
