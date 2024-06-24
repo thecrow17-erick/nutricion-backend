@@ -5,9 +5,6 @@ import { demoController } from '../controller/demo.controller.js';
 
 export const router = Router();
 
-
-
-
 router.post('/seed',async(_, res)=>{
   await prisma.user.createMany({
     data: usersDataSeed

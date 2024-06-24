@@ -3,12 +3,9 @@ import { request, response } from "express";
 import { chatGptBot } from "../service/chatBot.js";
 import { sendMessage } from "../service/twilio.js";
 
-
-
 const prisma = new PrismaClient();
 
 export const demoController = async(req= request, res = response)=>{
-  // console.log(req.body);
   const phone = req.body.From.split("+591")[1];
   const prompt = req.body.Body.trim();
   const [products, services ,findUser] = await Promise.all([
@@ -45,8 +42,11 @@ export const demoController = async(req= request, res = response)=>{
       }
     })
   }
+  
+  
+
   const messageGpt = await chatGptBot(products,services,findUser,chatUser,prompt);
-  console.log(messageGpt)
+  // console.log(messageGpt)
   const chatCreate = await prisma.chat.create({
     data:{
       userId: findUser.id,
