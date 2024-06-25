@@ -54,7 +54,7 @@ export const demoController = async(req= request, res = response)=>{
       message: prompt
     }
   })
-  await sendMessage(`${messageGpt.message}`);
+  await sendMessage(`${messageGpt.message}`,phone);
 
   return res.json({
     chatCreate

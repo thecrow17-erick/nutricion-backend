@@ -8,12 +8,12 @@ const authToken = process.env.TWILIO_AUTH_TOKEN  ;
 
 const client = new twilio(accountSid,authToken)
 
-export const sendMessage = async(message) =>{
+export const sendMessage = async(message,phone='') =>{
     try {
         const response = await client.messages.create({
             body: message,
             from: 'whatsapp:+14155238886',
-            to: 'whatsapp:+59176023033'
+            to: 'whatsapp:+591'+phone
         });
         console.log('Mensaje enviado:', response.sid);
     } catch (error) {
