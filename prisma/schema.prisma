@@ -17,9 +17,7 @@ datasource db {
 model User{
   id                String @db.Uuid @default(uuid()) @id
   name              String @db.Char(50)
-  email             String @db.Char(50)
   phone             String @db.Char(8)
-  sexo              Sexo 
   status            Boolean @default(true)
 
   dietTracking      DietTracking[]
@@ -59,11 +57,6 @@ model Chat{
   createdAt         DateTime @db.Timestamp() @default(now())
 }
 
-
-enum Sexo{
-  F
-  M
-}
 
 model Ofert{
   id                Int @default(autoincrement()) @id
