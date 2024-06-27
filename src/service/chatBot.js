@@ -28,20 +28,10 @@ const client = new Pinecone({
   apiKey: process.env.PINECODE_API_KEY
 });
 
-
-// const embeddings = new OpenAIEmbeddings({
-  //   openAIApiKey: process.env.OPENAI_API_KEY,
-  //   batchSize: 100,
-  //   model: 'text-embedding-3-small',
-  // });
   
 const indexName = 'nutrition';
 
 const index = client.Index(indexName);
-
-// function generateValidId(input) {
-//   return crypto.createHash('sha256').update(input).digest('hex');
-// }
 
 export const chatGptBot = async(products=[], services=[],user,chat=[],prompt="" )=>{
 
@@ -111,7 +101,9 @@ export const chatGptBot = async(products=[], services=[],user,chat=[],prompt="" 
     
     10. Tienes que responder de la manera mas natural posible para que el cliente se sienta comodo ante cualquier respuesta
 
-    11. Si no entiendes algo puedes decirle al cliente "Losiento porfavor me puedes explicar de nuevo".
+    11. Si el cliente te pide una proforma tu le dices lo siguiente "Enseguida te generaremos la proforma".
+
+    12. Si no entiendes algo puedes decirle al cliente "Losiento porfavor me puedes explicar de nuevo".
     `
   ;
   
@@ -197,19 +189,15 @@ export const chatGptBot = async(products=[], services=[],user,chat=[],prompt="" 
     role: "user",
     content: prompt
   })
-  // console.log(chatHistory[0])
 
   try {
 
-    const completions = await openAI.chat.completions.create({
-      messages: chatHistory,
-      model: "gpt-3.5-turbo",
-      max_tokens: 200,
-      temperature: 0.5
-    });
+
+
     //! Query PineCone
 
-    const query = completions.choices[0].message.content;
+
+    const query = prompt;
 
     const queryEmbedding = await new OpenAIEmbeddings().embedQuery(query);
     
@@ -228,7 +216,7 @@ export const chatGptBot = async(products=[], services=[],user,chat=[],prompt="" 
 
     if(queryResponse.matches.length){
       const llm = new LangchainOpenAI({
-        openAIApiKey: process.env.OPENAI_API_KEY
+        openAIApiKey: process.env.OPENAI_API_KEY,
       });
 
       const chain = loadQAStuffChain(llm);
@@ -245,46 +233,49 @@ export const chatGptBot = async(products=[], services=[],user,chat=[],prompt="" 
         ],
         question: query
       });
-      respuesta = query
+      respuesta = result.text
       console.log(`Answer: ${result.text}`);
     }else{
       console.log("ChatGPT no obtuvo ninguna respuesta");
     }
     
-    // const concatenatedText = queryResponse.matches
-    //   .map((match) => match.metadata.text)
-    //   .join(" ");
-
-
-    // console.log(`Concatenated text: ${concatenatedText}`);
-    
-    // const result = await chain.call({
-    //   input_documents: [
-    //     new Document({
-    //       pageContent: concatenatedText,
-    //     })
-    //   ],
-    //   question: query
-    // });
-
-    // console.log(`Answer: ${result.text}`);
 
     const responseContent = respuesta;
     console.log(responseContent)
 
-
+    
     // Asegurarse de que la respuesta sea un JSON válido
     const jsonResponse = {
       "message": responseContent
     }
+
+    // Respuesta de ChatGPT
+    // const completionsLangChain = await openAI.chat.completions.create({
+    //   messages: chatHistory,
+    //   model: "gpt-3.5-turbo",
+    //   max_tokens: 200,
+    //   temperature: 0.5
+    // });
+
+    // console.log(`Mensaje de chatGPT: ${completionsLangChain.choices[0].message.content}`)
+
+    const completions = await openAI.chat.completions.create({
+      messages: chatHistory,
+      model: "gpt-3.5-turbo",
+      max_tokens: 200,
+      temperature: 0.5
+    })
+  
+    console.log("Respuesta CHATGPT:", completions.choices[0].message);
     
     // Verificar que jsonResponse tenga la estructura adecuada
-
     if (jsonResponse && typeof jsonResponse.message === 'string') {
       return jsonResponse;
     } else {
       throw new Error('Respuesta JSON no tiene la estructura adecuada.');
     }
+    
+
   } catch (error) {
     console.error('Error procesando la respuesta:', error);
     // return {
@@ -294,12 +285,6 @@ export const chatGptBot = async(products=[], services=[],user,chat=[],prompt="" 
   
   
 
-  // const completions = await openAI.chat.completions.create({
-  //   messages: chatHistory,
-  //   model: "gpt-4",
-  //   max_tokens: 200,
-  //   temperature: 0.2
-  // })
   // return JSON.parse(completions.choices[0].message.content);
 
 }
