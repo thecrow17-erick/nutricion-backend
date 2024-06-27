@@ -101,7 +101,7 @@ for(const doc of docs){
 // }
 
 export const chatGptBot = async(products=[], services=[],user,chat=[],prompt="" )=>{
-
+  console.log(user)
   // const schedule = [
   //   "Eres un asesor de nutrición y fitness. Lee cuidadosamente las siguientes instrucciones:", 
   //   `1. Si el cliente está registrado y tenemos su nombre:

@@ -9,7 +9,8 @@ export const demoController = async(req= request, res = response)=>{
   const userName = req.body.ProfileName;
   const phone = req.body.From.split("+591")[1];
   const prompt = req.body.Body.trim();
-  const [products, services ,findUser] = await Promise.all([
+  let user = null;
+  const [products, services ] = await Promise.all([
     prisma.product.findMany({
       where:{
         stock:{
@@ -27,23 +28,24 @@ export const demoController = async(req= request, res = response)=>{
       }
     }),
     prisma.service.findMany(),
-    prisma.user.findFirst({
-      where:{
-        phone
-      }
-    })
   ])
   let chatUser= [];
   // console.log(products, services);
-  
-  if(findUser){
+
+  user = await prisma.user.findFirst({
+    where:{
+      phone
+    }
+  })
+
+  if(user){
     chatUser = await prisma.chat.findMany({
       where: {
-        userId: findUser.id
+        userId: user.id
       }
     })
   }else{
-    const createUser = await prisma.user.create({
+    user = await prisma.user.create({
       data:{
         name:userName,
         phone
@@ -53,11 +55,11 @@ export const demoController = async(req= request, res = response)=>{
   
   
 
-  const messageGpt = await chatGptBot(products,services,findUser? findUser: createUser,chatUser,prompt);
+  const messageGpt = await chatGptBot(products,services,user,chatUser,prompt);
   // console.log(messageGpt)
   const chatCreate = await prisma.chat.create({
     data:{
-      userId: findUser? findUser.id : createUser.id,
+      userId: user.id,
       botMessage: messageGpt.message,
       message: prompt
     }
