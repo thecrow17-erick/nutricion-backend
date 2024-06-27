@@ -26,6 +26,7 @@ export const chatContext = (products=[], services=[], user) => [
       }
 
       1. Si el cliente está registrado en nuestro sistema:
+        - Si no esta registrado no lo saludes por su nombre y solo dale la bienvenida.
         - Refierete a él por su nombre (${user.name}).
         - Salúdalo por su nombre y pregúntale si está interesado nuevamente en nuestros productos o servicios disponibles.
 
