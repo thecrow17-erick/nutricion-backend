@@ -121,56 +121,6 @@ export const chatGptBot = async(products=[], services=[],user,chat=[],prompt="" 
   
   //! Update PineCone
   
-  
-// const documentsPath = join(__dirname, '..', 'documents');
-// const loader = new DirectoryLoader(documentsPath,{".txt": (path) => new TextLoader(path)});
-// const docs = await loader.load();
-
-//   for(const doc of docs){
-//     console.log(`Processing document: ${doc.metadata.source}`);
-//     const txtPath = doc.metadata.source;
-//     const text = doc.pageContent;
-//     const textSplitter = new RecursiveCharacterTextSplitter({
-//       chunkSize: 1000,
-//     })
-    
-//     console.log("Splitting text into chunks...");
-    
-//     const chunks = await textSplitter.createDocuments([text]);
-
-//     console.log(`Text split into ${chunks.length} chunks`);
-//     console.log(`Calling OpenAI's Embedding endpoint documents with ${chunks.length} text chunks ...`);
-
-//     const embeddingsArrays = await new OpenAIEmbeddings().embedDocuments(
-//       chunks.map((chunk)=> chunk.pageContent.replace(/\n/g, ""))
-//     );
-
-//     console.log('Finished embedding documents');
-//     console.log(`Creating ${chunks.length} vectors array with id, values, and metadata...`);
-
-//     const batchSize = 100;
-//     let batch = [];
-//     for (let idx = 0; idx < chunks.length; idx++) {
-//       const chunk = chunks[idx];
-//       const vector = {
-//         id: `${txtPath}_${idx}`,
-//         values: embeddingsArrays[idx],
-//         metadata: {
-//           ...chunk.metadata,
-//           loc: JSON.stringify(chunk.metadata.loc),
-//           pageContent: chunk.pageContent,
-//           txtPath: txtPath
-//         },
-//       };
-//       batch.push(vector);
-//       if(batch.length === batchSize || idx === chunks.length - 1){
-//         await index.upsert(batch);
-//         batch = [];
-//       }
-
-//       console.log(`Pinecone index update with ${chunks.length} vectors`);
-//     }
-//   }
 
   const chatHistory = chatContext(products,services,user);
   chat.forEach(c => {
@@ -266,11 +216,14 @@ export const chatGptBot = async(products=[], services=[],user,chat=[],prompt="" 
       temperature: 0.5
     })
   
-    console.log("Respuesta CHATGPT:", completions.choices[0].message);
+    console.log("Respuesta CHATGPT:",completions.choices[0].message.content);
     
     // Verificar que jsonResponse tenga la estructura adecuada
     if (jsonResponse && typeof jsonResponse.message === 'string') {
-      return jsonResponse;
+      return {
+        pdf: JSON.parse(completions.choices[0].message.content),
+        message: jsonResponse.message
+      };
     } else {
       throw new Error('Respuesta JSON no tiene la estructura adecuada.');
     }
