@@ -64,7 +64,15 @@ export const demoController = async(req= request, res = response)=>{
       message: prompt
     }
   })
-  await sendMessage(`${messageGpt.message}`,phone);
+
+  function generateReport(text) {
+    const keywords = /reporte|preforma/i; // La 'i' hace que la búsqueda no sea sensible a mayúsculas y minúsculas
+    return keywords.test(text);
+  }
+
+  const report = generateReport(prompt);
+
+  await sendMessage(`${messageGpt.message}`,phone, report);
 
   return res.json({
     chatCreate

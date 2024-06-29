@@ -1,6 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import {router as userRouter} from './routes/user.route.js'
+import fileUpload from 'express-fileupload'
 
 export class Server{
 
@@ -29,6 +30,13 @@ export class Server{
     // habilitar los formularios 
     this.app.use(express.urlencoded({extended: true}))
     this.app.use(express.json());
+
+    this.app.use(fileUpload({
+            useTempFiles: true,
+            tempFileDir: '/tmp/',
+            createParentPath: true
+        }));
+        this.app.use('/uploads', express.static('uploads'));
   }
   
   routes(){

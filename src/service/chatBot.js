@@ -43,6 +43,9 @@ const index = client.Index(indexName);
 //   return crypto.createHash('sha256').update(input).digest('hex');
 // }
 
+
+
+
 export const chatGptBot = async(products=[], services=[],user,chat=[],prompt="" )=>{
 
   const schedule =
@@ -115,15 +118,15 @@ export const chatGptBot = async(products=[], services=[],user,chat=[],prompt="" 
     `
   ;
   
-  const __filename = fileURLToPath(import.meta.url);
-  const __dirname = dirname(__filename);
-  const rutaArchivo = join(__dirname, '../documents', 'intructions.txt');
-  try {
-    fs.writeFileSync(rutaArchivo, schedule);
-    console.log('Archivo creado y guardado exitosamente');
-  } catch (error) {
-    console.log('Error al escribir el archivo:', error)
-  }
+  // const __filename = fileURLToPath(import.meta.url);
+  // const __dirname = dirname(__filename);
+  // const rutaArchivo = join(__dirname, '../documents', 'intructions.txt');
+  // try {
+  //   fs.writeFileSync(rutaArchivo, schedule);
+  //   console.log('Archivo creado y guardado exitosamente');
+  // } catch (error) {
+  //   console.log('Error al escribir el archivo:', error)
+  // }
   
   
   
@@ -251,23 +254,7 @@ export const chatGptBot = async(products=[], services=[],user,chat=[],prompt="" 
       console.log("ChatGPT no obtuvo ninguna respuesta");
     }
     
-    // const concatenatedText = queryResponse.matches
-    //   .map((match) => match.metadata.text)
-    //   .join(" ");
 
-
-    // console.log(`Concatenated text: ${concatenatedText}`);
-    
-    // const result = await chain.call({
-    //   input_documents: [
-    //     new Document({
-    //       pageContent: concatenatedText,
-    //     })
-    //   ],
-    //   question: query
-    // });
-
-    // console.log(`Answer: ${result.text}`);
 
     const responseContent = respuesta;
     console.log(responseContent)

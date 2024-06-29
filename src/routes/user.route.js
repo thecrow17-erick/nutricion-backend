@@ -1,15 +1,20 @@
-import {Router} from 'express'
+import { Router } from 'express';
 import prisma from '../libs/prisma.js';
-import { categoriesDataSeed, productsDataSeed, servicesDataSeed, usersDataSeed } from '../seed/seed.db.js';
+import { categoriesDataSeed, productsDataSeed, servicesDataSeed } from '../seed/seed.db.js';
 import { demoController } from '../controller/demo.controller.js';
 import { getReportBill } from '../report/reportBill.js';
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+
+// Obtiene la ruta del directorio actual
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export const router = Router();
 
 router.post('/seed',async(_, res)=>{
-  await prisma.user.createMany({
-    data: usersDataSeed
-  })
+  
 
   await prisma.category.createMany({
     data: categoriesDataSeed
@@ -60,10 +65,34 @@ router.get("/report", async(_,res)=>{
       }
     ]
   }
-  const pdfDoc = await getReportBill(body);
 
-  res.header('Content-Type', 'application/pdf');
-  pdfDoc.info.Title = "Cotizacion";
-  pdfDoc.pipe(res);
-  pdfDoc.end();
+  try {
+    const pdfDoc = await getReportBill(body);
+    pdfDoc.info.Title = "Cotizacion";
+
+    // Crear la ruta del archivo en la carpeta uploads
+    const uploadsDir = path.join(__dirname, '../../uploads');
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir);
+    }
+    const filePath = path.join(uploadsDir, 'report.pdf');
+    const writeStream = fs.createWriteStream(filePath);
+
+    pdfDoc.pipe(writeStream);
+    pdfDoc.end();
+
+    writeStream.on('finish', () => {
+      res.header('Content-Type', 'application/pdf');
+      res.sendFile(filePath);
+    });
+
+    writeStream.on('error', (err) => {
+      console.error('Error al guardar el archivo:', err);
+      res.status(500).send('Error al guardar el archivo');
+    });
+  } catch (error) {
+    console.error('Error al generar el reporte:', error);
+    res.status(500).send('Error al generar el reporte');
+  }
+
 })
